@@ -17,4 +17,9 @@ hello <- function() {
   print("Hello, world And have a good day !")
 }
 
+printHello <- function() {
+
+  hello()
+}
+
 
