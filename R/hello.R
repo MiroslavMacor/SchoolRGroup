@@ -74,7 +74,7 @@ B <- c(0, 0, 1, 1,1,1,0)
 # generate a random value between 0 and 1 for each
 # element in X.  This will be used as our initial weights
 # for layer 1
-rand_vector <- runif(ncol(X) * nrow(X))
+rand_vector <- runif(ncol(X) * nrow(X), -0.5, 0.5)
 
 rand_vector_A <- runif(ncol(A) * nrow(A))
 
@@ -133,6 +133,77 @@ my_nn_A <- list(
     ncol = 1
   )
 )
+# this list stores the state of our neural net as it is trained
+my_nn_A <- list(
+  # predictor variables
+  input = A,
+  # weights for layer 1
+  weights1 = rand_matrix_A,
+  # weights for layer 2
+  weights2 = matrix(runif(length(B)), ncol = 1),
+  # actual observed
+  y = B,
+  # stores the predicted outcome
+  output = matrix(
+    rep(0, times = length(B)),
+    ncol = 1
+  )
+)
+
+# function to reate initial weights
+getIniMatrix <- function(ni, numberOfAttr){
+
+  rand_vector <- runif(ni * numberOfAttr, -0.5, 0.5)
+
+  rand_matrix <- matrix(
+    rand_vector,
+    nrow = numberOfAttr,
+    ncol = ni,
+    byrow = TRUE
+  )
+  rand_matrix
+}
+
+createNetworkStructure <- function(ni, nh, no,numberOfAttr){
+  my_nn_H <- list(
+    # predictor variables
+    input = matrix(,
+                   ncol = ni,
+                   byrow = TRUE
+    ),
+
+     hiddenlayers <- list(),
+     for (i in 1:nh) {
+       hiddenlayers[[i]] <- matrix(getIniMatrix(ni,numberOfAttr),nrow = ni, ncol = ni)
+      },
+    hiddenlayers = hiddenlayers,
+
+
+    outputs <- list(),
+    for (i in 1:no) {
+      outputs[[i]] <- matrix(rep(0, times = ni),nrow = ni, ncol = 1)
+    },
+    outputs = outputs,
+
+
+    # weights for layer 1
+    weights1 = rand_matrix_A,
+    # weights for layer 2
+    weights2 = matrix(runif(length(B)), ncol = 1),
+
+    # actual observed
+    y = B,
+    # stores the predicted outcome
+    output = matrix(
+      rep(0, times = length(B)),
+      ncol = 1
+    )
+  )
+
+  my_nn_H
+}
+
+
 
 
 #' the activation function
