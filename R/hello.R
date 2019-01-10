@@ -225,10 +225,8 @@ feedforward <- function(nn) {
   layersLength <- length(nn$hiddenlayers)
 
   tmp <- nn$layer1
-  # this is supposed to be 2 !!
   for (i in 2:(length(nn$hiddenlayers)-1)) {
     nn$layers[[i]] <- sigmoid(nn$layers[[i-1]] %*% nn$layers[[i]])
-
 
     # This is probably supposed to be layers not hidden layers.
     #nn$layers[[1]] <- sigmoid(nn$hiddenlayers[[i-1]] %*% nn$hiddenlayers[[i]])
@@ -246,7 +244,8 @@ feedforward <- function(nn) {
   nn$layer1 <- sigmoid(nn$input %*% nn$hiddenlayers[[1]])
 
   # nn$layer2 <- sigmoid(nn$weights3 %*% nn$layer1)
- nn$output <- sigmoid(nn$layer1 %*% nn$hiddenlayers[[2]])
+
+ ### nn$output <- sigmoid(nn$layer1 %*% nn$hiddenlayers[[2]])
   # nn$output <- sigmoid(nn$layer1 %*% nn$weights2)
 
 
@@ -258,21 +257,54 @@ backprop <- function(nn) {
 
   # application of the chain rule to find derivative of the loss function with
   # respect to weights2 and weights1
-  d_weights2 <- (
-    t(nn$layer1) %*%
-      # `2 * (nn$y - nn$output)` is the derivative of the sigmoid loss function
-      (2 * (nn$y - nn$output) *
-         sigmoid_derivative(nn$output))
-  )
+  layersLength <- length(nn$hiddenlayers)
+  #tmpWeights <- array(,dim = c(7,7,7))
 
-  d_weights1 <- ( 2 * (nn$y - nn$output) * sigmoid_derivative(nn$output)) %*%
-    t(nn$weights2)
-  d_weights1 <- d_weights1 * sigmoid_derivative(nn$layer1)
-  d_weights1 <- t(nn$input) %*% d_weights1
+  tmpWeights <- list()
+  for (i in 1:7  ) {
 
-  # update the weights using the derivative (slope) of the loss function
-  nn$weights1 <- nn$weights1 + d_weights1
-  nn$weights2 <- nn$weights2 + d_weights2
+  tmpWeights[[i]] <- matrix(getIniMatrix(7,1),nrow = 7, ncol = 7)
+  }
+
+  i<- 3
+  #for (i in (layersLength):2) {
+    # tmpWeights[,,i] <- (
+    #   t(nn$layers[[i-1]]) %*%
+    #     (2 * (nn$y - nn$output) *
+    #        sigmoid_derivative(nn$output))
+    # )
+    #tmpWeights[[i-1]] <- ( 2 * (nn$y - nn$output) * sigmoid_derivative(nn$output)) %*% t(nn$hiddenlayers[[i]])
+  if (i == 5) {
+    tmpWeights[[i-1]] <- ( 2 * (nn$y - nn$output) * sigmoid_derivative(nn$output)) %*% (nn$hiddenlayers[[5]])
+  }else {
+    tmpWeights[[i-1]] <- ( 2 * (nn$y - nn$output) * sigmoid_derivative(nn$output)) %*% t(nn$hiddenlayers[[i]])
+  }
+
+
+    tmpWeights[[i-1]] <- tmpWeights[[i-1]] * sigmoid_derivative(nn$layers[[i-1]])
+    tmpWeights[[i-1]] <- t(nn$input) %*% tmpWeights[[i-1]]
+
+    #nn$hiddenlayers[[i-1]] <- nn$hiddenlayers[[i-1]] + tmpWeights[[i-1]]
+    #nn$hiddenlayers[[i]] <- nn$hiddenlayers[[i]] + tmpWeights[[i]]
+
+  #}
+
+
+  # d_weights2 <- (
+  #   t(nn$layer1) %*%
+  #     # `2 * (nn$y - nn$output)` is the derivative of the sigmoid loss function
+  #     (2 * (nn$y - nn$output) *
+  #        sigmoid_derivative(nn$output))
+  # )
+
+  # d_weights1 <- ( 2 * (nn$y - nn$output) * sigmoid_derivative(nn$output)) %*%
+  #   t(nn$weights2)
+  # d_weights1 <- d_weights1 * sigmoid_derivative(nn$layer1)
+  # d_weights1 <- t(nn$input) %*% d_weights1
+  #
+  # # update the weights using the derivative (slope) of the loss function
+  # nn$weights1 <- nn$weights1 + d_weights1
+  # nn$weights2 <- nn$weights2 + d_weights2
 
   nn
 }
