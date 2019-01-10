@@ -86,13 +86,6 @@ rand_matrix_A <- matrix(
   byrow = TRUE
 )
 
-rand_matrix_AA <- matrix(
-  rand_vector_A,
-  nrow = ncol(A),
-  ncol = nrow(A),
-  byrow = FALSE
-)
-
 # this list stores the state of our neural net as it is trained
 my_nn <- list(
   # predictor variables
@@ -126,22 +119,7 @@ my_nn_A <- list(
     ncol = 1
   )
 )
-# this list stores the state of our neural net as it is trained
-my_nn_A <- list(
-  # predictor variables
-  input = A,
-  # weights for layer 1
-  weights1 = rand_matrix_A,
-  # weights for layer 2
-  weights2 = matrix(runif(length(B)), ncol = 1),
-  # actual observed
-  y = B,
-  # stores the predicted outcome
-  output = matrix(
-    rep(0, times = length(B)),
-    ncol = 1
-  )
-)
+
 
 # function to reate initial weights
 getIniMatrix <- function(ni, numberOfAttr){
@@ -199,24 +177,8 @@ createNetworkStructure <- function(ni, nh, no,numberOfAttr){
   weights1 = hiddenlayers[[1]],
 
 
-
-  #all other layers like this
-  weights3 = hiddenlayers[[1]],
-  weights4 = hiddenlayers[[1]],
-  weights5 = hiddenlayers[[1]],
-
     # weights for layer 2
-
-  # last layer
     weights2 = hiddenlayers[[2]],
-
-  ## for cycle
-  # if (nh > 1) {
-  #   hiddenlayers[[1]] = hiddenlayers[[1]][-(3+1):-ni,]
-  #   hiddenlayers[[nh]] = hiddenlayers[[2]][,-2:-ni]
-  # },
-  # hiddenlayers[[1]] <- hiddenlayers[[1]][-(3+1):-ni,],
- # hiddenlayers[[nh]] <- hiddenlayers[[2]][,-2:-ni],
 
     # actual observed
     y = B,
@@ -246,9 +208,48 @@ loss_function <- function(nn) {
 
 feedforward <- function(nn) {
 
-  nn$layer1 <- sigmoid(nn$input %*% nn$weights1)
-  nn$layer2 <- sigmoid(nn$weights3 %*% nn$layer1)
-  nn$output <- sigmoid(nn$layer1 %*% nn$weights2)
+  nn$layers = nn$hiddenlayers
+
+
+  nn$layers[[1]] <- sigmoid(nn$input %*% nn$hiddenlayers[[1]])
+
+
+  # nn$layer2 <- sigmoid(nn$layer2 %*% nn$layer2)
+  # nn$layer3 <- sigmoid(nn$layer2 %*% nn$layer3)
+  # nn$layer4 <- sigmoid(nn$layer3 %*% nn$layer4)
+  # nn$layer5 <- sigmoid(nn$layer4 %*% nn$layer5)
+  # nn$output <- sigmoid(nn$layer5 %*% nn$weights6)
+
+  nn$layers[[1]] <- sigmoid(nn$input %*% nn$hiddenlayers[[1]])
+
+  layersLength <- length(nn$hiddenlayers)
+
+  tmp <- nn$layer1
+  # this is supposed to be 2 !!
+  for (i in 2:(length(nn$hiddenlayers)-1)) {
+    nn$layers[[i]] <- sigmoid(nn$layers[[i-1]] %*% nn$layers[[i]])
+
+
+    # This is probably supposed to be layers not hidden layers.
+    #nn$layers[[1]] <- sigmoid(nn$hiddenlayers[[i-1]] %*% nn$hiddenlayers[[i]])
+
+  }
+  nn$output <- sigmoid(nn$layers[[layersLength]] %*% nn$layers[[layersLength-1]])
+
+  # nn$layer2 <- sigmoid(nn$weights3 %*% nn$layer1)
+
+
+
+
+
+  # nn$layer1 <- sigmoid(nn$input %*% nn$weights1)
+  nn$layer1 <- sigmoid(nn$input %*% nn$hiddenlayers[[1]])
+
+  # nn$layer2 <- sigmoid(nn$weights3 %*% nn$layer1)
+ nn$output <- sigmoid(nn$layer1 %*% nn$hiddenlayers[[2]])
+  # nn$output <- sigmoid(nn$layer1 %*% nn$weights2)
+
+
 
   nn
 }
@@ -303,9 +304,10 @@ loss_df <- data.frame(
 # #   loss_df$loss[i] <- loss_function(my_nn_A)
 # # }
 
-my_nn_H = createNetworkStructure(7,2,1,3)
-for (i in seq_len(1500)) {
+my_nn_H = createNetworkStructure(7,5,1,3)
 
+
+for (i in seq_len(1500)) {
   my_nn_H <- feedforward(my_nn_H)
   my_nn_H <- backprop(my_nn_H)
 
