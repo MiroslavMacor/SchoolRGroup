@@ -22,13 +22,6 @@ printHello <- function() {
   hello()
 }
 
-#initNetwork <- function(inputs, hidden, outputs){
-#  network <- list()
-#  hiddenLayer <-
-#    hidden_layer = [{'weights':[random() for i in range(n_inputs + 1)]} for i in range(n_hidden)]
-#
-#}
-
 # predictor variables
 X <- matrix(c(
   0,0,1,
@@ -167,16 +160,28 @@ getIniMatrix <- function(ni, numberOfAttr){
 createNetworkStructure <- function(ni, nh, no,numberOfAttr){
   my_nn_H <- list(
     # predictor variables
-    input = matrix(,
+  input = A,
+
+    inputOne = matrix(,
                    ncol = ni,
                    byrow = TRUE
     ),
 
      hiddenlayers <- list(),
-     for (i in 1:nh) {
-       hiddenlayers[[i]] <- matrix(getIniMatrix(ni,numberOfAttr),nrow = ni, ncol = ni)
+     for (i in 1:nh  ) {
+       if (i == 1){
+         tmp <- matrix(getIniMatrix(ni,numberOfAttr),nrow = ni, ncol = ni)
+         hiddenlayers[[i]] <- tmp[-(3+1):-ni,]
+       }else if (i == nh){
+         tmp <- matrix(getIniMatrix(ni,numberOfAttr),nrow = ni, ncol = ni)
+         hiddenlayers[[i]] <- tmp[,-2:-ni]
+       } else {
+         hiddenlayers[[i]] <- matrix(getIniMatrix(ni,numberOfAttr),nrow = ni, ncol = ni)
+       }
+
+
       },
-    hiddenlayers = hiddenlayers,
+     hiddenlayers = hiddenlayers,
 
 
     outputs <- list(),
@@ -187,17 +192,36 @@ createNetworkStructure <- function(ni, nh, no,numberOfAttr){
 
 
     # weights for layer 1
-    weights1 = rand_matrix_A,
+    #weights1 = hiddenlayers[[1]],
+  #my_nn_H = createNetworkStructure(7,2,1,3)
+
+  #first layer must be changed to work with input
+  weights1 = hiddenlayers[[1]],
+
+
+
+  #all other layers like this
+  weights3 = hiddenlayers[[1]],
+  weights4 = hiddenlayers[[1]],
+  weights5 = hiddenlayers[[1]],
+
     # weights for layer 2
-    weights2 = matrix(runif(length(B)), ncol = 1),
+
+  # last layer
+    weights2 = hiddenlayers[[2]],
+
+  ## for cycle
+  # if (nh > 1) {
+  #   hiddenlayers[[1]] = hiddenlayers[[1]][-(3+1):-ni,]
+  #   hiddenlayers[[nh]] = hiddenlayers[[2]][,-2:-ni]
+  # },
+  # hiddenlayers[[1]] <- hiddenlayers[[1]][-(3+1):-ni,],
+ # hiddenlayers[[nh]] <- hiddenlayers[[2]][,-2:-ni],
 
     # actual observed
     y = B,
     # stores the predicted outcome
-    output = matrix(
-      rep(0, times = length(B)),
-      ncol = 1
-    )
+    output = outputs[[1]]
   )
 
   my_nn_H
@@ -223,6 +247,7 @@ loss_function <- function(nn) {
 feedforward <- function(nn) {
 
   nn$layer1 <- sigmoid(nn$input %*% nn$weights1)
+  nn$layer2 <- sigmoid(nn$weights3 %*% nn$layer1)
   nn$output <- sigmoid(nn$layer1 %*% nn$weights2)
 
   nn
@@ -262,20 +287,30 @@ loss_df <- data.frame(
   loss = vector("numeric", length = n)
 )
 
+# for (i in seq_len(1500)) {
+# #   my_nn <- feedforward(my_nn)
+# #   my_nn <- backprop(my_nn)
+# #
+# #   # store the result of the loss function.  We will plot this later
+# #   loss_df$loss[i] <- loss_function(my_nn)
+# # }
+# #
+# # for (i in seq_len(1500)) {
+# #   my_nn_A <- feedforward(my_nn_A)
+# #   my_nn_A <- backprop(my_nn_A)
+# #
+# #   # store the result of the loss function.  We will plot this later
+# #   loss_df$loss[i] <- loss_function(my_nn_A)
+# # }
+
+my_nn_H = createNetworkStructure(7,2,1,3)
 for (i in seq_len(1500)) {
-  my_nn <- feedforward(my_nn)
-  my_nn <- backprop(my_nn)
+
+  my_nn_H <- feedforward(my_nn_H)
+  my_nn_H <- backprop(my_nn_H)
 
   # store the result of the loss function.  We will plot this later
-  loss_df$loss[i] <- loss_function(my_nn)
-}
-
-for (i in seq_len(1500)) {
-  my_nn_A <- feedforward(my_nn_A)
-  my_nn_A <- backprop(my_nn_A)
-
-  # store the result of the loss function.  We will plot this later
-  loss_df$loss[i] <- loss_function(my_nn_A)
+  loss_df$loss[i] <- loss_function(my_nn_H)
 }
 
 
