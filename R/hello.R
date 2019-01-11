@@ -281,11 +281,11 @@ backprop <- function(nn) {
   }
 
 
-    tmpWeights[[i-1]] <- tmpWeights[[i-1]] * sigmoid_derivative(nn$layers[[i-1]])
-    tmpWeights[[i-1]] <- t(nn$input) %*% tmpWeights[[i-1]]
+    tmpWeights[[i-1]] <- tmpWeights[[1]] * sigmoid_derivative(nn$layers[[i-1]])
+    tmpWeights[[i-1]] <- t(nn$input) %*% tmpWeights[[1]]
 
-    #nn$hiddenlayers[[i-1]] <- nn$hiddenlayers[[i-1]] + tmpWeights[[i-1]]
-    #nn$hiddenlayers[[i]] <- nn$hiddenlayers[[i]] + tmpWeights[[i]]
+    nn$hiddenlayers[[i-1]] <- nn$hiddenlayers[[i-1]] + tmpWeights[[1]]
+    nn$hiddenlayers[[i]] <- nn$hiddenlayers[[i]] + tmpWeights[[1]]
 
   #}
 
